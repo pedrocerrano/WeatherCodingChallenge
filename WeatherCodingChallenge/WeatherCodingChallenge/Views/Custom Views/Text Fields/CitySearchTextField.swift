@@ -31,7 +31,7 @@ class CitySearchTextField: UITextField {
         textColor                 = .label
         tintColor                 = .label
         textAlignment             = .center
-        font                      = UIFont.preferredFont(forTextStyle: .title2)
+        font                      = UIFont.preferredFont(forTextStyle: .title3)
         adjustsFontSizeToFitWidth = true
         minimumFontSize           = 12
         

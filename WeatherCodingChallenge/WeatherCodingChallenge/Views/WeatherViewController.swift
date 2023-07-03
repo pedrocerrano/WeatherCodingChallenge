@@ -6,11 +6,15 @@
 //
 
 import UIKit
+import CoreLocation
 
 class WeatherViewController: UIViewController {
 
     //MARK: - Properties
+    let locationButton      = LocationButton(imageColor: .white, backgroundColor: .systemBlue, systemImageName: SFSymbols.location)
     let citySearchTextField = CitySearchTextField()
+    
+    let locationManager = CLLocationManager()
     
     
     //MARK: - Lifecycle
@@ -19,28 +23,54 @@ class WeatherViewController: UIViewController {
         
         view.backgroundColor = .systemCyan
         
+        configureLocationManager()
         createDismissKeyboardTapGesture()
+        configureLocationButton()
         configureTextField()
     }
     
     //MARK: - Functions
-    func createDismissKeyboardTapGesture() {
+    private func configureLocationManager() {
+        locationManager.delegate = self
+        locationManager.requestWhenInUseAuthorization()
+    }
+    
+    private func createDismissKeyboardTapGesture() {
         let tap = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
         view.addGestureRecognizer(tap)
     }
     
-    func configureTextField() {
+    private func configureLocationButton() {
+        view.addSubview(locationButton)
+        locationButton.addTarget(self, action: #selector(requestCurrentLocation), for: .touchUpInside)
+        
+        NSLayoutConstraint.activate([
+            locationButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Constraints.stackPadding),
+            locationButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Constraints.stackPadding),
+            locationButton.heightAnchor.constraint(equalToConstant: Constraints.stackHeight),
+            locationButton.widthAnchor.constraint(equalTo: locationButton.heightAnchor)
+        ])
+    }
+    
+    @objc func requestCurrentLocation() {
+        locationManager.requestLocation()
+    }
+    
+    private func configureTextField() {
         view.addSubview(citySearchTextField)
         citySearchTextField.delegate = self
         
         NSLayoutConstraint.activate([
-            citySearchTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
-            citySearchTextField.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 8),
-            citySearchTextField.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -8),
-            citySearchTextField.heightAnchor.constraint(equalToConstant: 45)
+            citySearchTextField.topAnchor.constraint(equalTo: locationButton.topAnchor),
+            citySearchTextField.leadingAnchor.constraint(equalTo: locationButton.trailingAnchor, constant: Constraints.stackPadding),
+            citySearchTextField.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -Constraints.stackPadding),
+            citySearchTextField.heightAnchor.constraint(equalToConstant: Constraints.stackHeight)
         ])
     }
     
+    private func updateUI(withForecast cityforecast: CityForecast) {
+        #warning("Create outlets")
+    }
 } //: CLASS
 
 
@@ -66,4 +96,32 @@ extension WeatherViewController: UITextFieldDelegate {
         return true
     }
 } //: TextFieldDelegate
+
+
+//MARK: - LocationManagerDelegate
+extension WeatherViewController: CLLocationManagerDelegate {
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let location = locations.last {
+            locationManager.stopUpdatingLocation()
+            let latitude  = location.coordinate.latitude
+            let longitude = location.coordinate.longitude
+            Task {
+                do {
+                    let cityForecast = try await NetworkService.shared.fetchWeatherbyLocation(latitude: latitude, longitude: longitude)
+                    print("Current city is: \(cityForecast.cityName), and the current temp is \(cityForecast.temp)")
+                } catch {
+                    if let weatherError = error as? WeatherError {
+                        #warning("Add custom alert")
+                    } else {
+                        #warning("Add default Error")
+                    }
+                }
+            }
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("Location Manager did fail with error: \(error)")
+    }
+}
 

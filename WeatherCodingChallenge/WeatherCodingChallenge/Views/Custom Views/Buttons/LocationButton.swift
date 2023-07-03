@@ -21,9 +21,9 @@ class LocationButton: UIButton {
     
     
     //MARK: - Convenience Initializer
-    convenience init(fontColor: UIColor, backgroundColor: UIColor, title: String) {
+    convenience init(imageColor: UIColor, backgroundColor: UIColor, systemImageName: String) {
         self.init(frame: .zero)
-        set(fontColor: fontColor, backgroundColor: backgroundColor, title: title)
+        set(imageColor: imageColor, backgroundColor: backgroundColor, systemImageName: systemImageName)
     }
 
     
@@ -31,18 +31,12 @@ class LocationButton: UIButton {
     private func configure() {
         configuration              = .filled()
         configuration?.cornerStyle = .medium
-        configuration?.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { font in
-            var title = font
-            title.font = UIFont.preferredFont(forTextStyle: .title3)
-            return title
-        }
-        
         translatesAutoresizingMaskIntoConstraints = false
     }
     
-    final func set(fontColor: UIColor, backgroundColor: UIColor, title: String) {
-        configuration?.baseForegroundColor = fontColor
+    final func set(imageColor: UIColor, backgroundColor: UIColor, systemImageName: String) {
+        configuration?.baseForegroundColor = imageColor
         configuration?.baseBackgroundColor = backgroundColor
-        configuration?.title               = title
+        configuration?.image               = UIImage(systemName: systemImageName)
     }
 }

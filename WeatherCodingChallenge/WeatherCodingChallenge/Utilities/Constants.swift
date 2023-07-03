@@ -6,3 +6,12 @@
 //
 
 import Foundation
+
+enum SFSymbols {
+    static let location = "location.circle.fill"
+}
+
+enum Constraints {
+    static let stackHeight: CGFloat  = 45
+    static let stackPadding: CGFloat = 8
+}
