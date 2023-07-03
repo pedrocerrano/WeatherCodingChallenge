@@ -1,5 +1,5 @@
 //
-//  Forecast.swift
+//  Weather.swift
 //  WeatherCodingChallenge
 //
 //  Created by iMac Pro on 7/3/23.
@@ -7,14 +7,14 @@
 
 import Foundation
 
-struct Forecast: Codable {
+struct Weather: Codable {
     private enum CodingKeys: String, CodingKey {
-        case name
-        case details = "main"
-        case current = "weather"
+        case cityName = "name"
+        case details  = "main"
+        case current  = "weather"
     }
     
-    let name: String
+    let cityName: String
     let details: Details
     let current: [CurrentConditions]
 }

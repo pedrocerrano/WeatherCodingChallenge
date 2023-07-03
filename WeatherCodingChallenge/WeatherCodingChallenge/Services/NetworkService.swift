@@ -12,21 +12,76 @@ class NetworkService {
     
     //MARK: - Properties
     static let shared = NetworkService()
+    let decoder       = JSONDecoder()
     
-    let baseURL = "https://api.openweathermap.org/data/2.5/weather"
+    let openWeatherURL = "https://api.openweathermap.org/data/2.5/weather"
+    let appIdKey       = "appid"
+    let appIdValue     = "f915325ff07fd674f190487224e5af9e"
+    let unitTypeKey    = "units"
+    let unitTypeValue  = "imperial"
     
-    let appIdKey = "appid"
-    let appIdValue = "f915325ff07fd674f190487224e5af9e"
-    let unitTypeKey = "units"
-    let unitTypeValue = "imperial"
+    let cityNameQueryKey  = "q"
+    let latitudeQueryKey  = "lat"
+    let longitudeQueryKey = "lon"
     
     
     //MARK: - Functions
-    func fetchWeatherByCity(forCity city: String) {
-        guard let baseURL = URL(string: baseURL) else { return }
+    func fetchWeatherByCity(forCity city: String) async throws -> CityForecast {
+        guard let baseURL = URL(string: openWeatherURL) else { throw WeatherError.invalidURL }
+        var urlComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: true)
+        
+        let appIdQuery    = URLQueryItem(name: appIdKey, value: appIdValue)
+        let unitTypeQuery = URLQueryItem(name: unitTypeKey, value: unitTypeValue)
+        let cityNameQuery = URLQueryItem(name: cityNameQueryKey, value: city)
+        urlComponents?.queryItems = [appIdQuery, unitTypeQuery, cityNameQuery]
+        
+        guard let finalURL = urlComponents?.url else { throw WeatherError.invalidURL }
+        
+        let (data, response) = try await URLSession.shared.data(from: finalURL)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw WeatherError.invalidResponse
+        }
+        
+        do {
+            let forecast = try decoder.decode(Weather.self, from: data)
+            return createCityForecast(forecast)
+        } catch {
+            throw WeatherError.invalidData
+        }
     }
     
-    func fetchWeatherbyLocation(latitude: CLLocationDegrees, longitude: CLLocationDegrees) {
+    func fetchWeatherbyLocation(latitude: CLLocationDegrees, longitude: CLLocationDegrees) async throws -> CityForecast {
+        guard let baseURL = URL(string: openWeatherURL) else { throw WeatherError.invalidURL }
+        var urlComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: true)
         
+        let appIdQuery     = URLQueryItem(name: appIdKey, value: appIdValue)
+        let unitTypeQuery  = URLQueryItem(name: unitTypeKey, value: unitTypeValue)
+        let latitudeQuery  = URLQueryItem(name: latitudeQueryKey, value: String("\(latitude)"))
+        let longitudeQuery = URLQueryItem(name: longitudeQueryKey, value: String("\(longitude)"))
+        urlComponents?.queryItems = [appIdQuery, unitTypeQuery, latitudeQuery, longitudeQuery]
+        
+        guard let finalURL = urlComponents?.url else { throw WeatherError.invalidURL }
+        
+        let (data, response) = try await URLSession.shared.data(from: finalURL)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw WeatherError.invalidResponse
+        }
+        
+        do {
+            let forecast = try decoder.decode(Weather.self, from: data)
+            return createCityForecast(forecast)
+        } catch {
+            throw WeatherError.invalidData
+        }
+    }
+    
+    func createCityForecast(_ forecast: Weather) -> CityForecast {
+        return CityForecast(cityName: forecast.cityName,
+                            temp: forecast.details.temp,
+                            feelsLike: forecast.details.feelsLike,
+                            tempLow: forecast.details.low,
+                            tempHigh: forecast.details.high,
+                            conditionsDescription: forecast.current[0].description,
+                            conditionsID: forecast.current[0].id)
     }
 }
