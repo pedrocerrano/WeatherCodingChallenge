@@ -35,7 +35,7 @@ class NetworkService {
         let cityNameQuery = URLQueryItem(name: cityNameQueryKey, value: city)
         urlComponents?.queryItems = [appIdQuery, unitTypeQuery, cityNameQuery]
         
-        guard let finalURL = urlComponents?.url else { throw WeatherError.invalidURL }
+        guard let finalURL = urlComponents?.url else { throw WeatherError.unableToComplete }
         print("City Search finalURL: \(finalURL)")
         
         let (data, response) = try await URLSession.shared.data(from: finalURL)
