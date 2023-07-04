@@ -11,18 +11,18 @@ import CoreLocation
 class NetworkService {
     
     //MARK: - Properties
-    static let shared = NetworkService()
-    let decoder       = JSONDecoder()
+    static let shared   = NetworkService()
+    private let decoder = JSONDecoder()
     
-    let openWeatherURL = "https://api.openweathermap.org/data/2.5/weather"
-    let appIdKey       = "appid"
-    let appIdValue     = "f915325ff07fd674f190487224e5af9e"
-    let unitTypeKey    = "units"
-    let unitTypeValue  = "imperial"
+    private let openWeatherURL = "https://api.openweathermap.org/data/2.5/weather"
+    private let appIdKey       = "appid"
+    private let appIdValue     = "f915325ff07fd674f190487224e5af9e"
+    private let unitTypeKey    = "units"
+    private let unitTypeValue  = "imperial"
     
-    let cityNameQueryKey  = "q"
-    let latitudeQueryKey  = "lat"
-    let longitudeQueryKey = "lon"
+    private let cityNameQueryKey  = "q"
+    private let latitudeQueryKey  = "lat"
+    private let longitudeQueryKey = "lon"
     
     
     //MARK: - Functions
@@ -35,7 +35,8 @@ class NetworkService {
         let cityNameQuery = URLQueryItem(name: cityNameQueryKey, value: city)
         urlComponents?.queryItems = [appIdQuery, unitTypeQuery, cityNameQuery]
         
-        guard let finalURL = urlComponents?.url else { throw WeatherError.invalidURL }
+        guard let finalURL = urlComponents?.url else { throw WeatherError.unableToComplete }
+        print("City Search finalURL: \(finalURL)")
         
         let (data, response) = try await URLSession.shared.data(from: finalURL)
         guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
@@ -61,6 +62,7 @@ class NetworkService {
         urlComponents?.queryItems = [appIdQuery, unitTypeQuery, latitudeQuery, longitudeQuery]
         
         guard let finalURL = urlComponents?.url else { throw WeatherError.invalidURL }
+        print("Location Search finalURL: \(finalURL)")
         
         let (data, response) = try await URLSession.shared.data(from: finalURL)
         guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
@@ -75,7 +77,7 @@ class NetworkService {
         }
     }
     
-    func createCityForecast(_ forecast: Weather) -> CityForecast {
+    private func createCityForecast(_ forecast: Weather) -> CityForecast {
         return CityForecast(cityName: forecast.cityName,
                             temp: forecast.details.temp,
                             feelsLike: forecast.details.feelsLike,

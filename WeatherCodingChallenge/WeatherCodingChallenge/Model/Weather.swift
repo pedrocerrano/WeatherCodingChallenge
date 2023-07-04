@@ -24,7 +24,7 @@ struct Details: Codable {
         case temp
         case feelsLike = "feels_like"
         case low       = "temp_min"
-        case high      = "temp_high"
+        case high      = "temp_max"
     }
     
     let temp: Double

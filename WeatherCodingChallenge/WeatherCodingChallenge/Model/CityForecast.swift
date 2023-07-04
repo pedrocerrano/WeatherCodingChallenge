@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct CityForecast {
+struct CityForecast: Codable {
     let cityName: String
     let temp: Double
     let feelsLike: Double
@@ -19,19 +19,19 @@ struct CityForecast {
     var currentConditions: String {
         switch conditionsID {
         case 200...232:
-            return "cloud.bolt.rain"
+            return WeatherSFSymbols.thunderstorm
         case 300...321:
-            return "cloud.drizzle"
+            return WeatherSFSymbols.drizzle
         case 500...531:
-            return "cloud.rain"
+            return WeatherSFSymbols.rainy
         case 600...622:
-            return "cloud.snow"
+            return WeatherSFSymbols.snowy
         case 701...781:
-            return "cloud.fog"
+            return WeatherSFSymbols.foggy
         case 800:
-            return "sun.max"
+            return WeatherSFSymbols.sunny
         default:
-            return "cloud"
+            return WeatherSFSymbols.cloudy
         }
     }
 }
