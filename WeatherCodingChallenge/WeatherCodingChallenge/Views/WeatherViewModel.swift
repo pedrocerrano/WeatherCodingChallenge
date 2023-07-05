@@ -50,18 +50,12 @@ class WeatherViewModel {
         Task {
             do {
                 let fetchedCityForecast  = try await service.fetchWeatherByCity(forCity: city)
-                print("VIEWMODEL String fetch cityName: \(fetchedCityForecast.cityName)")
                 let fetchedThreeHourForecast = try await service.fetchFiveDayForecastByCity(forCity: city)
-                print("VIEWMODEL String fetch threeHourForecast first: \(fetchedThreeHourForecast[0].time)")
-                print("VIEWMODEL String fetch threeHourForecast second: \(fetchedThreeHourForecast[1].time)")
-                
                 self.cityForecast = fetchedCityForecast
                 self.threeHourForecast = fetchedThreeHourForecast
                 
-                print("ARRAY threeHourForecast item count: \(threeHourForecast.count)")
                 self.delegate?.updateCityForecast()
                 let _ = persistence.saveCityToDefaults(cityForecast: fetchedCityForecast)
-                print("\n")
             } catch {
                 print(error.localizedDescription)
             }
@@ -72,17 +66,12 @@ class WeatherViewModel {
         Task {
             do {
                 let newCityForecast = try await service.fetchWeatherbyLocation(latitude: latitude, longitude: longitude)
-                print("VIEWMODEL Location fetch cityName: \(newCityForecast.cityName)")
                 let newThreeHourForecast = try await service.fetchFiveDayForecastByCity(forCity: newCityForecast.cityName)
-                print("VIEWMODEL Location fetch threeHourForecast first: \(newThreeHourForecast[0].time)")
-                
                 self.cityForecast = newCityForecast
                 self.threeHourForecast = newThreeHourForecast
                 
-                print("ARRAY threeHourForecast item count: \(threeHourForecast.count)")
                 self.delegate?.updateCityForecast()
                 let _ = persistence.saveCityToDefaults(cityForecast: newCityForecast)
-                print("\n")
             } catch {
                 print(error.localizedDescription)
             }

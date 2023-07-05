@@ -8,7 +8,6 @@
 import Foundation
 
 extension Int {
-    
     func createCurrentConditions() -> String {
         switch self {
         case 200...232:

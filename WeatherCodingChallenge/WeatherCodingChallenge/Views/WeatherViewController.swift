@@ -75,7 +75,6 @@ class WeatherViewController: UIViewController {
 
 //MARK: - EXT: TextFieldDelegate
 extension WeatherViewController: UITextFieldDelegate {
-    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if let text = textField.text {
             viewModel.fetchForecastByCityAndResave(forCity: text)
@@ -88,7 +87,6 @@ extension WeatherViewController: UITextFieldDelegate {
 
 //MARK: - LocationManagerDelegate
 extension WeatherViewController: CLLocationManagerDelegate {
-    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.last {
             viewModel.locationManager.stopUpdatingLocation()
@@ -106,18 +104,14 @@ extension WeatherViewController: CLLocationManagerDelegate {
 
 //MARK: - TableViewDataSource and Delegate
 extension WeatherViewController: UITableViewDataSource, UITableViewDelegate {
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print("TableView rows count: \(viewModel.threeHourForecast.count)")
         return viewModel.threeHourForecast.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "dailyForecastCell", for: indexPath) as? ThreeHourForecastTableViewCell else { return UITableViewCell() }
         
-        print("CELL count: \(viewModel.threeHourForecast.count)")
         let threeHourForecast = viewModel.threeHourForecast[indexPath.row]
-        print("CELL threeHourForecast first: \(threeHourForecast.time)")
         cell.set(threeHourForecast: threeHourForecast)
         
         return cell
@@ -127,12 +121,12 @@ extension WeatherViewController: UITableViewDataSource, UITableViewDelegate {
 
 //MARK: - ViewModelDelegate
 extension WeatherViewController: WeatherViewModelDelegate {
-    
     func updateCityForecast() {
         guard let cityForecast = viewModel.cityForecast else { return }
         DispatchQueue.main.async {
             self.updateUI(with: cityForecast)
-            print("UPDATED with: \(cityForecast.cityName)")
+            self.threeHourForecastTableView.reloadData()
+            self.threeHourForecastTableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
         }
     }
 } //: ViewModelDelegate

@@ -22,7 +22,6 @@ class PersistenceManager {
             let encoder = JSONEncoder()
             let encodedCity = try encoder.encode(cityForecast)
             defaults.set(encodedCity, forKey: Keys.savedCity)
-            print("PERSISTENCE Saved: \(cityForecast.cityName) to Local Storage")
             return nil
         } catch {
             return .unableToSave
@@ -38,7 +37,6 @@ class PersistenceManager {
         do {
             let decoder = JSONDecoder()
             let retreivedCity = try decoder.decode(CityForecast.self, from: savedCity)
-            print("PERSISTENCE Retreived: \(retreivedCity.cityName) from Local Storage")
             completion(.success(retreivedCity))
         } catch {
             completion(.failure(.unableToLoad))
