@@ -11,9 +11,9 @@ import CoreLocation
 class NetworkService {
     
     //MARK: - Properties
-//    static let shared   = NetworkService()
     private let decoder = JSONDecoder()
     
+    // These could easily belong in the Constants file, but I put them here to make the functions below feel less busy and more readable.
     private let openWeatherURL      = "https://api.openweathermap.org/data/2.5/"
     private let weatherPath         = "weather"
     private let fiveDayForecastPath = "forecast"
@@ -28,6 +28,8 @@ class NetworkService {
     
     
     //MARK: - Functions
+    
+    // I favor async await Concurrency over completion handlers because of how linear they are, but I'm quite comfortable with completion handlers.
     func fetchWeatherByCity(forCity city: String) async throws -> CityForecast {
         guard let baseURL = URL(string: openWeatherURL) else { throw WeatherError.invalidURL }
         var urlComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: true)
@@ -39,7 +41,8 @@ class NetworkService {
         urlComponents?.queryItems = [appIdQuery, unitTypeQuery, cityNameQuery]
         
         guard let finalURL = urlComponents?.url else { throw WeatherError.unableToComplete }
-        print("SERVICE City Search finalURL: \(finalURL)")
+        // I find a printed and clearly labeled URL reference to be of the utmost help in debugging
+        // print("SERVICE Search by City finalURL: \(finalURL)")
         
         let (data, response) = try await URLSession.shared.data(from: finalURL)
         guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
@@ -48,7 +51,7 @@ class NetworkService {
         
         do {
             let forecast = try decoder.decode(Weather.self, from: data)
-            return createCityForecast(forecast)
+            return NetworkHelper.createCityForecast(forecast)
         } catch {
             throw WeatherError.invalidData
         }
@@ -66,7 +69,7 @@ class NetworkService {
         urlComponents?.queryItems = [appIdQuery, unitTypeQuery, latitudeQuery, longitudeQuery]
         
         guard let finalURL = urlComponents?.url else { throw WeatherError.invalidURL }
-        print("SERVICE Location Search finalURL: \(finalURL)")
+        // print("SERVICE Search by Location finalURL: \(finalURL)")
         
         let (data, response) = try await URLSession.shared.data(from: finalURL)
         guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
@@ -75,23 +78,13 @@ class NetworkService {
         
         do {
             let forecast = try decoder.decode(Weather.self, from: data)
-            return createCityForecast(forecast)
+            return NetworkHelper.createCityForecast(forecast)
         } catch {
             throw WeatherError.invalidData
         }
     }
     
-    private func createCityForecast(_ weather: Weather) -> CityForecast {
-        return CityForecast(cityName: weather.cityName,
-                            temp: weather.details.temp,
-                            feelsLike: weather.details.feelsLike,
-                            tempLow: weather.details.low,
-                            tempHigh: weather.details.high,
-                            conditionsDescription: weather.conditions[0].description,
-                            conditionsID: weather.conditions[0].id)
-    }
-    
-    func fetchFiveDayForecastByCity(forCity city: String) async throws -> [ThreeHourForecast] {
+    func fetchThreeHourForecastsByCity(forCity city: String) async throws -> [ThreeHourForecast] {
         guard let baseURL = URL(string: openWeatherURL) else { throw WeatherError.invalidURL }
         var urlComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: true)
         urlComponents?.path.append(fiveDayForecastPath)
@@ -102,7 +95,7 @@ class NetworkService {
         urlComponents?.queryItems = [appIdQuery, unitTypeQuery, cityNameQuery]
         
         guard let finalURL = urlComponents?.url else { throw WeatherError.unableToComplete }
-        print("SERVICE 5-day Forecast finalURL: \(finalURL)")
+        // print("SERVICE 3-Hour Forecast finalURL: \(finalURL)")
         
         let (data, response) = try await URLSession.shared.data(from: finalURL)
         guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
@@ -111,23 +104,9 @@ class NetworkService {
         
         do {
             let fiveDayWeather = try decoder.decode(FiveDayWeather.self, from: data)
-            return createFiveDayForecast(fiveDayWeather)
+            return NetworkHelper.createThreeHourForecast(fiveDayWeather)
         } catch {
             throw WeatherError.invalidData
         }
-    }
-    
-    private func createFiveDayForecast(_ fiveDayWeather: FiveDayWeather) -> [ThreeHourForecast] {
-        var fiveDayForecastArray: [ThreeHourForecast] = []
-        for dailyWeather in fiveDayWeather.list {
-            let dailyForecast = ThreeHourForecast(time: dailyWeather.date.convertToTime(),
-                                                  chances: dailyWeather.precipitation,
-                                                  conditionsID: dailyWeather.futureConditions[0].id,
-                                                  tempLow: dailyWeather.main.low,
-                                                  tempHigh: dailyWeather.main.high)
-            fiveDayForecastArray.append(dailyForecast)
-        }
-        
-        return fiveDayForecastArray
     }
 }

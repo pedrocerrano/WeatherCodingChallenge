@@ -43,16 +43,17 @@ struct ThreeHourForecastView: View {
     }
 }
 
-//struct ThreeHourForecast_Previews: PreviewProvider {
-//    static let mockDailyForecast = ThreeHourForecast(time: "3:00 pm", chances: 0.1, conditionsID: 800, tempLow: 80, tempHigh: 100)
-//
-//    static var previews: some View {
-//        ZStack {
-//            Color.cyan
-//            ThreeHourForecastView(threeHourForecast: mockDailyForecast)
-//                .padding(.horizontal)
-//        }
-//        .frame(height: 40)
-//        .previewLayout(.sizeThatFits)
-//    }
-//}
+struct ThreeHourForecast_Previews: PreviewProvider {
+    // Mock data for the Preview only
+    static let mockDailyForecast = ThreeHourForecast(time: "3:00 pm", chances: 0.1, conditionsID: 800, tempLow: 80, tempHigh: 100)
+
+    static var previews: some View {
+        ZStack {
+            Color.cyan
+            ThreeHourForecastView(threeHourForecast: mockDailyForecast)
+                .padding(.horizontal)
+        }
+        .frame(height: 40)
+        .previewLayout(.sizeThatFits)
+    }
+}

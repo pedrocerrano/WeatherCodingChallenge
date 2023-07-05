@@ -8,6 +8,8 @@
 import Foundation
 
 enum WeatherError: String, Error {
+    
+    // Custom Errors that are thrown on the network calls and on the Persistence Manager
     case invalidURL       = "Invalid URL. Double check the endpoint."
     case unableToComplete = "Unable to complete the request. Please check the Internet connection."
     case invalidResponse  = "Invalid response from the server. Please try again."

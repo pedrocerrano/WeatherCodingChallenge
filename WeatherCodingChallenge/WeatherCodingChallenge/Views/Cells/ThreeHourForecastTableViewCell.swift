@@ -11,6 +11,8 @@ class ThreeHourForecastTableViewCell: UITableViewCell {
     
     //MARK: - Functions
     func set(threeHourForecast: ThreeHourForecast) {
+        // This is a SwiftUI view in place of outlets, storyboards and constraints
+        // Much simpler and easier to use
         contentConfiguration = UIHostingConfiguration {
             ThreeHourForecastView(threeHourForecast: threeHourForecast)
         }

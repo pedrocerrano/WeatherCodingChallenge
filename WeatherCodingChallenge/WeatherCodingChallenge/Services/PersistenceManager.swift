@@ -10,8 +10,10 @@ import Foundation
 class PersistenceManager {
     
     //MARK: - Properties
+    
+    // Stores the very small sized data locally
     private let defaults = UserDefaults.standard
-     
+    
     private enum Keys { static let savedCity = "savedCity" }
     
     
@@ -28,6 +30,7 @@ class PersistenceManager {
         }
     }
     
+    // Utilized a completion handler so that I could deal with the errors after calling the function
     func retreiveCityFromDefaults(completion: @escaping (Result<CityForecast, WeatherError>) -> Void) {
         guard let savedCity = defaults.object(forKey: Keys.savedCity) as? Data else {
             completion(.failure(.invalidData))

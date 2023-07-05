@@ -25,6 +25,9 @@ class WeatherViewController: UIViewController {
     
     
     //MARK: - Properties
+    
+    // I force-unwrapped this to make make this UIViewController dependent upon the viewModel
+    // If it fails, I'll find out quickly
     var viewModel: WeatherViewModel!
     
     
@@ -45,7 +48,7 @@ class WeatherViewController: UIViewController {
     
     //MARK: - Functions
     private func congifureViewController() {
-        view.backgroundColor = .systemCyan
+        view.backgroundColor = .systemTeal
         viewModel.locationManager.delegate = self
         viewModel.configureLocationManager()
         viewModel.loadDefaultLocation()
@@ -64,7 +67,12 @@ class WeatherViewController: UIViewController {
     
     private func updateUI(with cityForecast: CityForecast) {
         cityNameLabel.text               = cityForecast.cityName
+        
+        // createCurrentConditions switches over the conditionsID and assigns the name of a custom SFSymbol to the correct weather conditions provided by the API
+        // .withRenderingMode(.alwaysOriginal) allows for the SFSymbol to display multiple colors
         currentConditionsImageView.image = UIImage(systemName: cityForecast.conditionsID.createCurrentConditions())?.withRenderingMode(.alwaysOriginal)
+        
+        // asRoundedString is an extension of Double that formats the value to a whole number
         currentTempLabel.text            = "\(cityForecast.temp.asRoundedString())°F"
         feelsLikeLabel.text              = "Feels like \(cityForecast.feelsLike.asRoundedString())°F"
         loTempLabel.text                 = "L: \(cityForecast.tempLow.asRoundedString())°F"
@@ -79,6 +87,7 @@ extension WeatherViewController: UITextFieldDelegate {
         if let text = textField.text {
             viewModel.fetchForecastByCityAndResave(forCity: text)
             textField.text = ""
+            textField.resignFirstResponder()
         }
         return true
     }
@@ -126,6 +135,7 @@ extension WeatherViewController: WeatherViewModelDelegate {
         DispatchQueue.main.async {
             self.updateUI(with: cityForecast)
             self.threeHourForecastTableView.reloadData()
+            // After reloading the tableView, I wanted the data to begin at the top
             self.threeHourForecastTableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
         }
     }

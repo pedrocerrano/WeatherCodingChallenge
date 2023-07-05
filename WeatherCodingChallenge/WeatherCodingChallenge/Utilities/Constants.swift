@@ -7,11 +7,8 @@
 
 import UIKit
 
-enum SFSymbols {
-    static let location = "location.circle.fill"
-}
-
 enum WeatherSFSymbols {
+    
     static let thunderstorm = "cloud.bolt.rain.fill"
     static let drizzle      = "cloud.drizzle"
     static let rainy        = "cloud.rain"
