@@ -9,17 +9,17 @@ import Foundation
 
 struct Weather: Codable {
     private enum CodingKeys: String, CodingKey {
-        case cityName = "name"
-        case details  = "main"
-        case current  = "weather"
+        case cityName   = "name"
+        case details    = "main"
+        case conditions = "weather"
     }
     
     let cityName: String
-    let details: Details
-    let current: [CurrentConditions]
+    let details: WeatherDetails
+    let conditions: [WeatherConditions]
 }
 
-struct Details: Codable {
+struct WeatherDetails: Codable {
     private enum CodingKeys: String, CodingKey {
         case temp
         case feelsLike = "feels_like"
@@ -33,7 +33,7 @@ struct Details: Codable {
     let high: Double
 }
 
-struct CurrentConditions: Codable {
+struct WeatherConditions: Codable {
     let description: String
     let id: Int
 }

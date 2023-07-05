@@ -11,14 +11,16 @@ import CoreLocation
 class NetworkService {
     
     //MARK: - Properties
-    static let shared   = NetworkService()
+//    static let shared   = NetworkService()
     private let decoder = JSONDecoder()
     
-    private let openWeatherURL = "https://api.openweathermap.org/data/2.5/weather"
-    private let appIdKey       = "appid"
-    private let appIdValue     = "f915325ff07fd674f190487224e5af9e"
-    private let unitTypeKey    = "units"
-    private let unitTypeValue  = "imperial"
+    private let openWeatherURL      = "https://api.openweathermap.org/data/2.5/"
+    private let weatherPath         = "weather"
+    private let fiveDayForecastPath = "forecast"
+    private let appIdKey            = "appid"
+    private let appIdValue          = "f915325ff07fd674f190487224e5af9e"
+    private let unitTypeKey         = "units"
+    private let unitTypeValue       = "imperial"
     
     private let cityNameQueryKey  = "q"
     private let latitudeQueryKey  = "lat"
@@ -29,6 +31,7 @@ class NetworkService {
     func fetchWeatherByCity(forCity city: String) async throws -> CityForecast {
         guard let baseURL = URL(string: openWeatherURL) else { throw WeatherError.invalidURL }
         var urlComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: true)
+        urlComponents?.path.append(weatherPath)
         
         let appIdQuery    = URLQueryItem(name: appIdKey, value: appIdValue)
         let unitTypeQuery = URLQueryItem(name: unitTypeKey, value: unitTypeValue)
@@ -36,7 +39,7 @@ class NetworkService {
         urlComponents?.queryItems = [appIdQuery, unitTypeQuery, cityNameQuery]
         
         guard let finalURL = urlComponents?.url else { throw WeatherError.unableToComplete }
-        print("City Search finalURL: \(finalURL)")
+        print("SERVICE City Search finalURL: \(finalURL)")
         
         let (data, response) = try await URLSession.shared.data(from: finalURL)
         guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
@@ -54,6 +57,7 @@ class NetworkService {
     func fetchWeatherbyLocation(latitude: CLLocationDegrees, longitude: CLLocationDegrees) async throws -> CityForecast {
         guard let baseURL = URL(string: openWeatherURL) else { throw WeatherError.invalidURL }
         var urlComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: true)
+        urlComponents?.path.append(weatherPath)
         
         let appIdQuery     = URLQueryItem(name: appIdKey, value: appIdValue)
         let unitTypeQuery  = URLQueryItem(name: unitTypeKey, value: unitTypeValue)
@@ -62,7 +66,7 @@ class NetworkService {
         urlComponents?.queryItems = [appIdQuery, unitTypeQuery, latitudeQuery, longitudeQuery]
         
         guard let finalURL = urlComponents?.url else { throw WeatherError.invalidURL }
-        print("Location Search finalURL: \(finalURL)")
+        print("SERVICE Location Search finalURL: \(finalURL)")
         
         let (data, response) = try await URLSession.shared.data(from: finalURL)
         guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
@@ -77,13 +81,53 @@ class NetworkService {
         }
     }
     
-    private func createCityForecast(_ forecast: Weather) -> CityForecast {
-        return CityForecast(cityName: forecast.cityName,
-                            temp: forecast.details.temp,
-                            feelsLike: forecast.details.feelsLike,
-                            tempLow: forecast.details.low,
-                            tempHigh: forecast.details.high,
-                            conditionsDescription: forecast.current[0].description,
-                            conditionsID: forecast.current[0].id)
+    private func createCityForecast(_ weather: Weather) -> CityForecast {
+        return CityForecast(cityName: weather.cityName,
+                            temp: weather.details.temp,
+                            feelsLike: weather.details.feelsLike,
+                            tempLow: weather.details.low,
+                            tempHigh: weather.details.high,
+                            conditionsDescription: weather.conditions[0].description,
+                            conditionsID: weather.conditions[0].id)
+    }
+    
+    func fetchFiveDayForecastByCity(forCity city: String) async throws -> [ThreeHourForecast] {
+        guard let baseURL = URL(string: openWeatherURL) else { throw WeatherError.invalidURL }
+        var urlComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: true)
+        urlComponents?.path.append(fiveDayForecastPath)
+        
+        let appIdQuery    = URLQueryItem(name: appIdKey, value: appIdValue)
+        let unitTypeQuery = URLQueryItem(name: unitTypeKey, value: unitTypeValue)
+        let cityNameQuery = URLQueryItem(name: cityNameQueryKey, value: city)
+        urlComponents?.queryItems = [appIdQuery, unitTypeQuery, cityNameQuery]
+        
+        guard let finalURL = urlComponents?.url else { throw WeatherError.unableToComplete }
+        print("SERVICE 5-day Forecast finalURL: \(finalURL)")
+        
+        let (data, response) = try await URLSession.shared.data(from: finalURL)
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw WeatherError.invalidResponse
+        }
+        
+        do {
+            let fiveDayWeather = try decoder.decode(FiveDayWeather.self, from: data)
+            return createFiveDayForecast(fiveDayWeather)
+        } catch {
+            throw WeatherError.invalidData
+        }
+    }
+    
+    private func createFiveDayForecast(_ fiveDayWeather: FiveDayWeather) -> [ThreeHourForecast] {
+        var fiveDayForecastArray: [ThreeHourForecast] = []
+        for dailyWeather in fiveDayWeather.list {
+            let dailyForecast = ThreeHourForecast(time: dailyWeather.date.convertToTime(),
+                                                  chances: dailyWeather.precipitation,
+                                                  conditionsID: dailyWeather.futureConditions[0].id,
+                                                  tempLow: dailyWeather.main.low,
+                                                  tempHigh: dailyWeather.main.high)
+            fiveDayForecastArray.append(dailyForecast)
+        }
+        
+        return fiveDayForecastArray
     }
 }
