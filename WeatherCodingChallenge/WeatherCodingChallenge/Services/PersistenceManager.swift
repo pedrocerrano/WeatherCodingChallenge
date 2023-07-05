@@ -7,29 +7,29 @@
 
 import Foundation
 
-enum PersistenceManager {
+class PersistenceManager {
     
     //MARK: - Properties
-    static private let defaults = UserDefaults.standard
+    private let defaults = UserDefaults.standard
      
     private enum Keys { static let savedCity = "savedCity" }
     
     
     //MARK: - Functions
-    static func saveCityToDefaults(cityForecast: CityForecast) -> WeatherError? {
+    func saveCityToDefaults(cityForecast: CityForecast) -> WeatherError? {
         defaults.removeObject(forKey: Keys.savedCity)
         do {
             let encoder = JSONEncoder()
             let encodedCity = try encoder.encode(cityForecast)
             defaults.set(encodedCity, forKey: Keys.savedCity)
-            print("Saved: \(cityForecast.cityName) to Defaults")
+            print("PERSISTENCE Saved: \(cityForecast.cityName) to Local Storage")
             return nil
         } catch {
             return .unableToSave
         }
     }
     
-    static func retreiveCityFromDefaults(completion: @escaping (Result<CityForecast, WeatherError>) -> Void) {
+    func retreiveCityFromDefaults(completion: @escaping (Result<CityForecast, WeatherError>) -> Void) {
         guard let savedCity = defaults.object(forKey: Keys.savedCity) as? Data else {
             completion(.failure(.invalidData))
             return
@@ -38,7 +38,7 @@ enum PersistenceManager {
         do {
             let decoder = JSONDecoder()
             let retreivedCity = try decoder.decode(CityForecast.self, from: savedCity)
-            print("Retreived: \(retreivedCity.cityName) from Defaults")
+            print("PERSISTENCE Retreived: \(retreivedCity.cityName) from Local Storage")
             completion(.success(retreivedCity))
         } catch {
             completion(.failure(.unableToLoad))
