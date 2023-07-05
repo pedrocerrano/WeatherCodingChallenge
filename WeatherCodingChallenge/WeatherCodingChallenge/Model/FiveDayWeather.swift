@@ -26,6 +26,9 @@ struct ThreeHourFutureWeather: Codable {
 }
 
 struct ThreeHourFutureTemp: Codable {
+    
+    // I named these low and high to differientate between the CityForecast lowTemp and highTemp
+    // An attempt to improve readability
     private enum CodingKeys: String, CodingKey {
         case low       = "temp_min"
         case high      = "temp_max"

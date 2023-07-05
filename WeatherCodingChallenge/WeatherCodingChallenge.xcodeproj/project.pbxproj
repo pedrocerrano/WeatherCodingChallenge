@@ -27,6 +27,7 @@
 		29FC99D32A559D840059144A /* Ext+Int.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FC99D22A559D840059144A /* Ext+Int.swift */; };
 		29FC99D82A55A9260059144A /* WeatherViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FC99D72A55A9260059144A /* WeatherViewModel.swift */; };
 		29FC99DA2A55DDD20059144A /* Ext+String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FC99D92A55DDD20059144A /* Ext+String.swift */; };
+		29FC99DC2A5615180059144A /* NetworkHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FC99DB2A5615180059144A /* NetworkHelper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,6 +53,7 @@
 		29FC99D22A559D840059144A /* Ext+Int.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Ext+Int.swift"; sourceTree = "<group>"; };
 		29FC99D72A55A9260059144A /* WeatherViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherViewModel.swift; sourceTree = "<group>"; };
 		29FC99D92A55DDD20059144A /* Ext+String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Ext+String.swift"; sourceTree = "<group>"; };
+		29FC99DB2A5615180059144A /* NetworkHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -138,6 +140,7 @@
 			isa = PBXGroup;
 			children = (
 				29E61FA92A532155002402E9 /* NetworkService.swift */,
+				29FC99DB2A5615180059144A /* NetworkHelper.swift */,
 				298CAC7F2A54861B00BCC2A7 /* PersistenceManager.swift */,
 			);
 			path = Services;
@@ -254,6 +257,7 @@
 				29E61FAA2A532155002402E9 /* NetworkService.swift in Sources */,
 				298CAC7C2A54781F00BCC2A7 /* Ext+Double.swift in Sources */,
 				29E61FB12A53227F002402E9 /* Weather.swift in Sources */,
+				29FC99DC2A5615180059144A /* NetworkHelper.swift in Sources */,
 				29FC99DA2A55DDD20059144A /* Ext+String.swift in Sources */,
 				29FC99D82A55A9260059144A /* WeatherViewModel.swift in Sources */,
 				298CAC872A54B53A00BCC2A7 /* FiveDayWeather.swift in Sources */,

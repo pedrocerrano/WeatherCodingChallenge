@@ -8,6 +8,8 @@
 import Foundation
 
 extension Int {
+    // This custom extension corresponds to the Int values provided by the Weather API
+    // Based on the range of values, it will return a SFSymbol string to be used with a SwiftUI Image and UIImageViews
     func createCurrentConditions() -> String {
         switch self {
         case 200...232:

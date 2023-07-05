@@ -8,6 +8,7 @@
 import Foundation
 
 extension Double {
+    // Used to round the temperature values to whole numbers
     func asRoundedString() -> String {
         return String(format: "%.0f", self)
     }

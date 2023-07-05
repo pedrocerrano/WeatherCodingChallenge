@@ -8,6 +8,8 @@
 import Foundation
 
 struct Weather: Codable {
+    
+    // Added CodingKeys to add more clarity and to handle snake_case (blah) JSON Strings.
     private enum CodingKeys: String, CodingKey {
         case cityName   = "name"
         case details    = "main"

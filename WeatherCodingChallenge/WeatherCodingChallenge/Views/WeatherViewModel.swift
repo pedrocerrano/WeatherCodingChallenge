@@ -38,6 +38,9 @@ class WeatherViewModel {
     }
     
     func loadDefaultLocation() {
+        // Sets a default value while waiting on the user to authorize location permissions
+        // Plano, TX is the city for the JPM office I live near
+        // If the user has already authorized location permissions, this will simply return out of the function
         if locationManager.authorizationStatus == .notDetermined {
             let appLaunchCityName = "Plano"
             fetchForecastByCityAndResave(forCity: appLaunchCityName)
@@ -50,7 +53,7 @@ class WeatherViewModel {
         Task {
             do {
                 let fetchedCityForecast  = try await service.fetchWeatherByCity(forCity: city)
-                let fetchedThreeHourForecast = try await service.fetchFiveDayForecastByCity(forCity: city)
+                let fetchedThreeHourForecast = try await service.fetchThreeHourForecastsByCity(forCity: city)
                 self.cityForecast = fetchedCityForecast
                 self.threeHourForecast = fetchedThreeHourForecast
                 
@@ -66,7 +69,7 @@ class WeatherViewModel {
         Task {
             do {
                 let newCityForecast = try await service.fetchWeatherbyLocation(latitude: latitude, longitude: longitude)
-                let newThreeHourForecast = try await service.fetchFiveDayForecastByCity(forCity: newCityForecast.cityName)
+                let newThreeHourForecast = try await service.fetchThreeHourForecastsByCity(forCity: newCityForecast.cityName)
                 self.cityForecast = newCityForecast
                 self.threeHourForecast = newThreeHourForecast
                 
@@ -84,6 +87,8 @@ class WeatherViewModel {
             case .success(let savedCity):
                 self.fetchForecastByCityAndResave(forCity: savedCity.cityName)
             case .failure(_):
+                // This is for when a user first loads the app and does not yet have anything stored locally
+                // It should fail on first launch
                 self.locationManager.requestLocation()
             }
         }
